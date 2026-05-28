@@ -1,0 +1,299 @@
+VETCARE INTELLIGENCE - UML CLASS DIAGRAM
+
+==================================================
+1. MAIN
+==================================================
+
+Main
+----------------------------------
++ main(args: String[]): void
+
+Relationship:
+Main creates and starts WebServer.
+
+
+==================================================
+2. WEB LAYER
+==================================================
+
+WebServer
+----------------------------------
+- expedientes: ArrayList<String>
+- consultasIA: ArrayList<String>
+----------------------------------
++ start(): void
+- styles(): String
+- showHome(exchange: HttpExchange): void
+- generateAdvice(exchange: HttpExchange): void
+- askAI(exchange: HttpExchange): void
+- showHistory(exchange: HttpExchange): void
+- readForm(exchange: HttpExchange): Map<String, String>
+- parseFormData(formData: String): Map<String, String>
+- sendResponse(exchange: HttpExchange, response: String): void
+- cleanMarkdown(text: String): String
+- escapeHtml(text: String): String
+
+Relationships:
+WebServer uses Owner, Pet, Vaccine, MedicalRecord and AIService.
+WebServer receives user data through HTML forms.
+WebServer stores temporary clinical records and AI consultations during the active session.
+
+
+==================================================
+3. AI SERVICE
+==================================================
+
+AIService
+----------------------------------
++ generatePetCareAdvice(pet: Pet, vaccine: Vaccine, medicalRecord: MedicalRecord): String
++ answerPetQuestion(question: String): String
+- isPetQuestionAllowed(question: String): boolean
+- askGemini(prompt: String): String
+- extractTextFromGeminiResponse(json: String): String
+- escapeJson(text: String): String
+
+Relationships:
+AIService uses Pet, Vaccine and MedicalRecord to generate prompts.
+AIService connects to Gemini API using an environment variable named GEMINI_API_KEY.
+AIService validates that questions are related to pet care before sending them to Gemini.
+
+
+==================================================
+4. PERSON HIERARCHY
+==================================================
+
+Person (abstract)
+----------------------------------
+- id: int
+- name: String
+- phone: String
+- email: String
+----------------------------------
++ Person()
++ Person(id: int, name: String, phone: String, email: String)
++ getRole(): String
++ getId(): int
++ getName(): String
++ getPhone(): String
++ getEmail(): String
+
+Owner extends Person
+----------------------------------
++ Owner()
++ Owner(id: int, name: String, phone: String, email: String)
++ getRole(): String
+
+Veterinarian extends Person
+----------------------------------
+- specialty: String
+----------------------------------
++ Veterinarian()
++ Veterinarian(id: int, name: String, phone: String, email: String, specialty: String)
++ getRole(): String
++ getSpecialty(): String
+
+Relationships:
+Owner inherits from Person.
+Veterinarian inherits from Person.
+
+
+==================================================
+5. CLINICAL MODEL CLASSES
+==================================================
+
+Pet
+----------------------------------
+- id: int
+- name: String
+- species: String
+- breed: String
+- age: int
+- ownerId: int
+----------------------------------
++ Pet()
++ Pet(id: int, name: String, species: String, breed: String, age: int, ownerId: int)
++ getId(): int
++ getName(): String
++ getSpecies(): String
++ getBreed(): String
++ getAge(): int
++ getOwnerId(): int
+
+Vaccine
+----------------------------------
+- id: int
+- petId: int
+- vaccineName: String
+- applicationDate: String
+- nextDueDate: String
+----------------------------------
++ Vaccine()
++ Vaccine(id: int, petId: int, vaccineName: String, applicationDate: String, nextDueDate: String)
++ getId(): int
++ getPetId(): int
++ getVaccineName(): String
++ getApplicationDate(): String
++ getNextDueDate(): String
+
+MedicalRecord
+----------------------------------
+- id: int
+- petId: int
+- description: String
+- diagnosis: String
+- treatment: String
+- recordDate: String
+----------------------------------
++ MedicalRecord()
++ MedicalRecord(id: int, petId: int, description: String, diagnosis: String, treatment: String, recordDate: String)
++ getId(): int
++ getPetId(): int
++ getDescription(): String
++ getDiagnosis(): String
++ getTreatment(): String
++ getRecordDate(): String
+
+Appointment
+----------------------------------
+- id: int
+- petId: int
+- veterinarianId: int
+- appointmentDate: String
+- reason: String
+- status: String
+----------------------------------
++ Appointment()
++ Appointment(id: int, petId: int, veterinarianId: int, appointmentDate: String, reason: String, status: String)
++ getId(): int
++ getPetId(): int
++ getVeterinarianId(): int
++ getAppointmentDate(): String
++ getReason(): String
++ getStatus(): String
+
+PatientRecord
+----------------------------------
+- pet: Pet
+- owner: Owner
+- vaccine: Vaccine
+- medicalRecord: MedicalRecord
+- aiRecommendation: String
+----------------------------------
++ PatientRecord(pet: Pet, owner: Owner, vaccine: Vaccine, medicalRecord: MedicalRecord, aiRecommendation: String)
++ getPet(): Pet
++ getOwner(): Owner
++ getVaccine(): Vaccine
++ getMedicalRecord(): MedicalRecord
++ getAiRecommendation(): String
+
+VaccineSchedule
+----------------------------------
+- petName: String
+- vaccineName: String
+- nextDate: String
+- status: String
+----------------------------------
++ VaccineSchedule(petName: String, vaccineName: String, nextDate: String, status: String)
++ getPetName(): String
++ getVaccineName(): String
++ getNextDate(): String
++ getStatus(): String
+
+Relationships:
+Pet belongs to Owner using ownerId.
+Vaccine belongs to Pet using petId.
+MedicalRecord belongs to Pet using petId.
+Appointment belongs to Pet using petId.
+Appointment may be assigned to Veterinarian using veterinarianId.
+PatientRecord groups Owner, Pet, Vaccine, MedicalRecord and AI recommendation.
+VaccineSchedule represents pending vaccine control for a pet.
+
+
+==================================================
+6. REPOSITORY INTERFACE AND DAO CLASSES
+==================================================
+
+CrudRepository<T> (interface)
+----------------------------------
++ create(object: T): void
++ read(id: int): T
++ update(object: T): void
++ delete(id: int): void
+
+OwnerDAO implements CrudRepository<Owner>
+----------------------------------
+- owners: ArrayList<Owner>
+----------------------------------
++ create(owner: Owner): void
++ read(id: int): Owner
++ update(owner: Owner): void
++ delete(id: int): void
++ showAllOwners(): void
+
+PetDAO implements CrudRepository<Pet>
+----------------------------------
+- pets: ArrayList<Pet>
+----------------------------------
++ create(pet: Pet): void
++ read(id: int): Pet
++ update(pet: Pet): void
++ delete(id: int): void
++ showAllPets(): void
+
+AppointmentDAO implements CrudRepository<Appointment>
+----------------------------------
+- appointments: ArrayList<Appointment>
+----------------------------------
++ create(appointment: Appointment): void
++ read(id: int): Appointment
++ update(appointment: Appointment): void
++ delete(id: int): void
++ showAllAppointments(): void
+
+Relationships:
+OwnerDAO implements CrudRepository<Owner>.
+PetDAO implements CrudRepository<Pet>.
+AppointmentDAO implements CrudRepository<Appointment>.
+
+
+==================================================
+7. BUSINESS SERVICE
+==================================================
+
+PetCareService
+----------------------------------
++ showGeneralRecommendation(pet: Pet, vaccine: Vaccine, medicalRecord: MedicalRecord): void
++ validateAppointment(appointment: Appointment): void
+
+Relationships:
+PetCareService uses Pet, Vaccine, MedicalRecord and Appointment to apply business logic.
+
+
+==================================================
+SUMMARY OF MAIN RELATIONSHIPS
+==================================================
+
+Main --> WebServer
+WebServer --> AIService
+WebServer --> Owner
+WebServer --> Pet
+WebServer --> Vaccine
+WebServer --> MedicalRecord
+
+Owner --> Person
+Veterinarian --> Person
+
+OwnerDAO --> CrudRepository<Owner>
+PetDAO --> CrudRepository<Pet>
+AppointmentDAO --> CrudRepository<Appointment>
+
+Pet --> Owner
+Vaccine --> Pet
+MedicalRecord --> Pet
+Appointment --> Pet
+Appointment --> Veterinarian
+PatientRecord --> Owner
+PatientRecord --> Pet
+PatientRecord --> Vaccine
+PatientRecord --> MedicalRecord
+AIService --> Gemini API

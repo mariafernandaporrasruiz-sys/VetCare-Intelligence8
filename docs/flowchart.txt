@@ -1,0 +1,84 @@
+VETCARE INTELLIGENCE - SYSTEM FLOWCHART
+
+START
+  |
+  v
+Run Main.java
+  |
+  v
+Create WebServer object
+  |
+  v
+Start local Java HTTP server
+  |
+  v
+Open browser at http://localhost:8085
+  |
+  v
+Show main web interface
+  |
+  v
+User selects an action
+  |
+  +------------------------------------------------------+
+  |                                                      |
+  v                                                      v
+Register clinical record                         Ask AI assistant
+  |                                                      |
+  v                                                      v
+User enters owner data                          User writes a pet-care question
+  |                                                      |
+  v                                                      v
+User enters pet data                            System validates the question
+  |                                                      |
+  v                                                      v
+User enters vaccine data                 Is the question related to pets?
+  |                                                      |
+  v                                                      +----------------------+
+User enters diagnosis, symptoms, treatment       |                      |
+and observations                                 v                      v
+  |                                       YES: send question       NO: reject question
+  v                                       to Gemini API            and show warning
+Create Owner object                              |                      |
+  |                                              v                      v
+  v                                       Receive AI response       Save rejected/limited
+Create Pet object                                |                   consultation
+  |                                              v                      |
+  v                                       Clean Markdown format        |
+Create Vaccine object                            |                      |
+  |                                              v                      |
+  v                                       Show AI response             |
+Create MedicalRecord object                      |                      |
+  |                                              v                      |
+  v                                       Save consultation            |
+Send clinical information to AIService           |                      |
+  |                                              v                      |
+  v                                       Return to main interface <---+
+AIService creates prompt for Gemini API
+  |
+  v
+Gemini API generates recommendation
+  |
+  v
+System receives AI response
+  |
+  v
+Clean Markdown format
+  |
+  v
+Create clinical record summary
+  |
+  v
+Save record in temporary session history
+  |
+  v
+Show intelligent clinical report
+  |
+  v
+User can open clinical history
+  |
+  v
+Show stored clinical records and AI consultations
+  |
+  v
+END
